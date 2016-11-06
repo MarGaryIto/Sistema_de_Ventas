@@ -15,6 +15,7 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import models.ModelProveedores;
 import views.ViewProveedores;
 import mysql.Conexion;
@@ -143,7 +144,6 @@ public class ControllerProveedores {
         }
     };
     private void agregar() throws SQLException, ClassNotFoundException, InstantiationException, IllegalAccessException{    
-        String id_proveedor = viewProveedores.jLabel_idproveedor.getText();
         String nombre = viewProveedores.jTextField_nombre.getText();
         String rfc = viewProveedores.jTextField_rfc.getText();
         String calle = viewProveedores.jTextField_calle.getText();
@@ -182,16 +182,35 @@ public class ControllerProveedores {
         //
     }
     private void conexion(){
-        //
+        JOptionPane.showMessageDialog(viewProveedores, "Conexion correcta");
     }
     private void mostrarTodo(){
-        
+        viewProveedores.jTextField_id.setVisible(true);
+        viewProveedores.jTextField_nombre.setVisible(true);
+        viewProveedores.jTextField_rfc.setVisible(true);
+        viewProveedores.jTextField_calle.setVisible(true);
+        viewProveedores.jTextField_numero.setVisible(true);
+        viewProveedores.jTextField_colonia.setVisible(true);
+        viewProveedores.jTextField_ciudad.setVisible(true);
+        viewProveedores.jTextField_estado.setVisible(true);
+        viewProveedores.jTextField_nombrecontacto.setVisible(true);
+        viewProveedores.jTextField_telefono.setVisible(true);
+        viewProveedores.jTextField_email.setVisible(true);
     }
     private void ocultarTodoMenosId(){
-        
+        viewProveedores.jTextField_nombre.setVisible(false);
+        viewProveedores.jTextField_rfc.setVisible(false);
+        viewProveedores.jTextField_calle.setVisible(false);
+        viewProveedores.jTextField_numero.setVisible(false);
+        viewProveedores.jTextField_colonia.setVisible(false);
+        viewProveedores.jTextField_ciudad.setVisible(false);
+        viewProveedores.jTextField_estado.setVisible(false);
+        viewProveedores.jTextField_nombrecontacto.setVisible(false);
+        viewProveedores.jTextField_telefono.setVisible(false);
+        viewProveedores.jTextField_email.setVisible(false);
     }
     private void ocultarId(){
-        
+        viewProveedores.jTextField_id.setVisible(true);
     }
     private void sandwichActionPerformed(){
         this.viewMain.setContentPane(null);
