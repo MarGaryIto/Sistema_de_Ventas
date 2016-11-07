@@ -10,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
@@ -58,6 +59,8 @@ public class ControllerProveedores {
             if(evt.getComponent()==viewProveedores.jLabel_Conexion){
                 tarea = "conexion";
                 mostrarPanelMedio();
+                ocultarTodoMenosId();
+                ocultarId();
             }else if(evt.getComponent()==viewProveedores.jLabel_Agregar){
                 mostrarPanelMedio();
                 mostrarTodo();
@@ -78,6 +81,7 @@ public class ControllerProveedores {
                 mostrarPanelMedio();
             }else if(evt.getComponent()==viewProveedores.jLabel_Buscar){
                 mostrarTodo();
+                ocultarTodoMenosNombre();
                 tarea = "buscar";
                 mostrarPanelMedio();
             }
@@ -268,16 +272,21 @@ public class ControllerProveedores {
         stmt.executeUpdate(sql);
     }
     private void buscar() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException{
-        String id = viewProveedores.jTextField_id.getText();
+        String nombre = viewProveedores.jTextField_nombre.getText();
         String sDriver = "com.mysql.jdbc.Driver";
         String sURL = "jdbc:mysql://localhost:3306/tecno_phone";
-        String sql = "select * from proveedores where id_proveedor = '"+id+"';";
+        String sql = "select id_proveedor,nombre from proveedores where nombre = '"+nombre+"';";
         Connection con = null;
         Class.forName(sDriver).newInstance();
         con = DriverManager.getConnection(sURL,"root","1234");
         System.out.println(sql);
         Statement stmt = con.prepareStatement(sql);
-        JOptionPane.showMessageDialog(viewProveedores, stmt.executeUpdate(sql));
+        ResultSet rs = stmt.executeQuery(sql);
+        int i=1;
+        while(rs.next()){
+            JOptionPane.showMessageDialog(viewProveedores, nombre+" encontrado, id: "+rs.getObject(i));
+            i++;
+        }
     }
     private void conexion(){
         JOptionPane.showMessageDialog(viewProveedores, "Conexion correcta");
@@ -331,6 +340,12 @@ public class ControllerProveedores {
         viewProveedores.jLabel_nomcontacto.setVisible(false);
         viewProveedores.jLabel1_telefono.setVisible(false);
         viewProveedores.jLabel_email.setVisible(false);
+    }
+    private void ocultarTodoMenosNombre(){
+        ocultarTodoMenosId();
+        ocultarId();
+        viewProveedores.jLabel_nombre.setVisible(true);
+        viewProveedores.jTextField_nombre.setVisible(true);
     }
     private void ocultarId(){
         viewProveedores.jLabel_idproveedor.setVisible(false);

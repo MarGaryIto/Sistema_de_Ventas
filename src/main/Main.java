@@ -21,7 +21,10 @@ public class Main {
         ViewProveedores viewProveedores = new ViewProveedores();
         ControllerProveedores controllerProveedores = new ControllerProveedores(modelProveedores,viewProveedores);
         
-        ControllerProductos controllerProductos = new ControllerProductos();
+        //ViewProductos viewProductos = new ViewProductos();
+       // AgregarProductos agregarProductos = new AgregarProductos();
+       // OpcionesProductos opcionesProductos = new OpcionesProductos();
+        ControllerProductos controllerProductos = new ControllerProductos();//AgregarProductos agregarProductos, OpcionesProductos opcionesProductos, ViewProductos viewProductos);
         
         modules[0] = controllerProductos;
         modules[1] = controllerProveedores;
