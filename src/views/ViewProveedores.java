@@ -24,17 +24,16 @@ public class ViewProveedores extends javax.swing.JPanel {
      * Creates new form Proveedores
      * @throws java.sql.SQLException
      */
-    public ViewProveedores() throws SQLException {
+    public ViewProveedores() throws SQLException{
         modeloTabla = new DefaultTableModel(null,getColumnas());
         setFilas();
         initComponents();
+        this.jPanel_Medio.setVisible(false);
     }
-    
     private String[] getColumnas(){
         String columna[] = new String[]{"id_proveedor","nombre","rfc","calle","no","colonia","ciudad","estado","nombre_contacto","telefono","email"};
         return columna;
     }
-    
     private void setFilas() throws SQLException{
         try{
             String sql = "select id_proveedor,nombre,rfc,calle,no,colonia,ciudad,estado,nombre_contacto,telefono,email from proveedores;";
@@ -47,12 +46,16 @@ public class ViewProveedores extends javax.swing.JPanel {
                     for(int i = 0;i<datos.length;i++){
                         datos[i] = res.getObject(i+1);
                     }
-                    modeloTabla.addRow(datos);
+                    getModeloTabla().addRow(datos);
                 }
             } //Numero de columnas de la consulta
         }catch(SQLException ex){
             Logger.getLogger(ViewProveedores.class.getName()).log(Level.SEVERE,null,ex);
         }
+    }
+    public void actualizaTabla(){
+        this.jTable_Proveedores.setModel(modeloTabla);
+        modeloTabla.fireTableDataChanged();
     }
 
     /**
@@ -203,7 +206,7 @@ public class ViewProveedores extends javax.swing.JPanel {
             .addGroup(jPanel_BuscarLayout.createSequentialGroup()
                 .addGap(34, 34, 34)
                 .addComponent(jLabel_Buscar, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(46, Short.MAX_VALUE))
+                .addContainerGap(44, Short.MAX_VALUE))
         );
         jPanel_BuscarLayout.setVerticalGroup(
             jPanel_BuscarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -217,7 +220,7 @@ public class ViewProveedores extends javax.swing.JPanel {
         jLabel_Conexion.setFont(new java.awt.Font("Century Gothic", 0, 14)); // NOI18N
         jLabel_Conexion.setForeground(new java.awt.Color(255, 255, 255));
         jLabel_Conexion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/conectar.png"))); // NOI18N
-        jLabel_Conexion.setText("Conexion");
+        jLabel_Conexion.setText("Actualizar");
 
         javax.swing.GroupLayout jPanel_ConexionLayout = new javax.swing.GroupLayout(jPanel_Conexion);
         jPanel_Conexion.setLayout(jPanel_ConexionLayout);
@@ -548,7 +551,7 @@ public class ViewProveedores extends javax.swing.JPanel {
     public javax.swing.JPanel jPanel_aceptar;
     public javax.swing.JPanel jPanel_cancelar;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable_Proveedores;
+    public javax.swing.JTable jTable_Proveedores;
     public javax.swing.JTextField jTextField_calle;
     public javax.swing.JTextField jTextField_ciudad;
     public javax.swing.JTextField jTextField_colonia;
@@ -561,4 +564,18 @@ public class ViewProveedores extends javax.swing.JPanel {
     public javax.swing.JTextField jTextField_rfc;
     public javax.swing.JTextField jTextField_telefono;
     // End of variables declaration//GEN-END:variables
+
+    /**
+     * @return the modeloTabla
+     */
+    public DefaultTableModel getModeloTabla() {
+        return modeloTabla;
+    }
+
+    /**
+     * @param modeloTabla the modeloTabla to set
+     */
+    public void setModeloTabla(DefaultTableModel modeloTabla) {
+        this.modeloTabla = modeloTabla;
+    }
 }

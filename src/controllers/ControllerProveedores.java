@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 import models.ModelProveedores;
 import views.ViewProveedores;
 import mysql.Conexion;
@@ -32,8 +33,10 @@ public class ControllerProveedores {
     Conexion conexion;
     private String tarea = "ninguna";
     mysql.Conexion con = new mysql.Conexion();
+    DefaultTableModel modeloTabla;
+    private String id;
     
-    public ControllerProveedores(ModelProveedores modelProveedores,ViewProveedores viewProveedores){
+    public ControllerProveedores(ModelProveedores modelProveedores,ViewProveedores viewProveedores) throws SQLException{
         this.modelProveedores = modelProveedores;
         this.viewProveedores = viewProveedores;
         initView();
@@ -56,15 +59,17 @@ public class ControllerProveedores {
                 tarea = "conexion";
                 mostrarPanelMedio();
             }else if(evt.getComponent()==viewProveedores.jLabel_Agregar){
+                mostrarPanelMedio();
                 mostrarTodo();
                 ocultarId();
                 tarea = "agregar";
-                mostrarPanelMedio();
             }else if(evt.getComponent()==viewProveedores.jLabe_lEditar){
-                mostrarTodo();
-                ocultarTodoMenosId();
                 tarea="editar";
-                mostrarPanelMedio();
+                try {
+                    editar();
+                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SQLException ex) {
+                    Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
             else if(evt.getComponent()==viewProveedores.jLabel_Eliminar){
                 mostrarTodo();
@@ -105,14 +110,43 @@ public class ControllerProveedores {
                     }
                 }
                         break;
-                    case "editar":
-                        editar();
+                    case "editar":{
+                    try {
+                        ejecutarEdicion(id);
+                    } catch (ClassNotFoundException ex) {
+                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (InstantiationException ex) {
+                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (SQLException ex) {
+                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IllegalAccessException ex) {
+                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    }
                         break;
                     case "eliminar":
+                {
+                    try {
                         eliminar();
+                    } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | SQLException ex) {
+                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
                         break;
                     case "buscar":
+                {
+                    try {
                         buscar();
+                    } catch (ClassNotFoundException ex) {
+                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (SQLException ex) {
+                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (InstantiationException ex) {
+                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IllegalAccessException ex) {
+                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
                         break;
                     case "conexion":
                         conexion();
@@ -121,7 +155,7 @@ public class ControllerProveedores {
                         break;
                 }
             }else if(evt.getComponent()==viewProveedores.jLabel_cancelar){
-                mostrarPanelMedio();
+                ocultarPanelMedio();
             }
             JLabel jlabel = (JLabel) evt.getComponent();
             jlabel.setForeground(Color.darkGray);
@@ -172,14 +206,78 @@ public class ControllerProveedores {
         viewProveedores.setVisible(true);
     }
         
-    private void editar(){
-        //
+    private void editar() throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException{
+        id = JOptionPane.showInputDialog(viewProveedores, "Dijite el id del proveedor a editar:");
+        mostrarPanelMedio();       
     }
-    private void eliminar(){
-        //
+    private void eliminar() throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException{
+        id = viewProveedores.jTextField_id.getText();
+        String sDriver = "com.mysql.jdbc.Driver";
+        String sURL = "jdbc:mysql://localhost:3306/tecno_phone";
+        String sql = "delete from proveedores where id_proveedor = '"+id+"';";
+        Connection con = null;
+        Class.forName(sDriver).newInstance();
+        con = DriverManager.getConnection(sURL,"root","1234");
+        System.out.println(sql);
+        Statement stmt = con.prepareStatement(sql);
+        stmt.executeUpdate(sql);
+        viewProveedores.revalidate();
     }
-    private void buscar(){
-        //
+    private void ejecutarEdicion(String id) throws ClassNotFoundException, InstantiationException, SQLException, IllegalAccessException{
+        viewProveedores.jTextField_id.setText(id);
+        String nombre = viewProveedores.jTextField_nombre.getText();
+        String rfc = viewProveedores.jTextField_rfc.getText();
+        String calle = viewProveedores.jTextField_calle.getText();
+        String no = viewProveedores.jTextField_numero.getText();
+        String colonia = viewProveedores.jTextField_colonia.getText();
+        String ciudad = viewProveedores.jTextField_ciudad.getText();
+        String estado = viewProveedores.jTextField_estado.getText();
+        String nombre_contacto = viewProveedores.jTextField_nombrecontacto.getText();
+        String telefono = viewProveedores.jTextField_telefono.getText();
+        String email = viewProveedores.jTextField_email.getText();
+        String sDriver = "com.mysql.jdbc.Driver";
+        String sURL = "jdbc:mysql://localhost:3306/tecno_phone";
+        String sql;
+        Connection con = null;
+        Class.forName(sDriver).newInstance();
+        con = DriverManager.getConnection(sURL,"root","1234");
+        sql = "update proveedores set nombre = '"+nombre+"' where id_proveedor = "+id+";";
+        statementExecute(sql,con);
+        sql = "update proveedores set rfc = '"+rfc+"' where id_proveedor = "+id+";";
+        statementExecute(sql,con);
+        sql = "update proveedores set calle = '"+calle+"' where id_proveedor = "+id+";";
+        statementExecute(sql,con);
+        sql = "update proveedores set no = '"+no+"' where id_proveedor = "+id+";";
+        statementExecute(sql,con);
+        sql = "update proveedores set colonia = '"+colonia+"' where id_proveedor = "+id+";";
+        statementExecute(sql,con);
+        sql = "update proveedores set ciudad = '"+ciudad+"' where id_proveedor = "+id+";";
+        statementExecute(sql,con);
+        sql = "update proveedores set estado = '"+estado+"' where id_proveedor = "+id+";";
+        statementExecute(sql,con);
+        sql = "update proveedores set nombre_contacto = '"+nombre_contacto+"' where id_proveedor = "+id+";";
+        statementExecute(sql,con);
+        sql = "update proveedores set telefono = '"+telefono+"' where id_proveedor = "+id+";";
+        statementExecute(sql,con);
+        sql = "update proveedores set email = '"+email+"' where id_proveedor = "+id+";";
+        statementExecute(sql,con);
+    }
+    private void statementExecute(String sql,Connection con) throws SQLException{
+        System.out.println(sql);
+        Statement stmt = con.prepareStatement(sql);
+        stmt.executeUpdate(sql);
+    }
+    private void buscar() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException{
+        String id = viewProveedores.jTextField_id.getText();
+        String sDriver = "com.mysql.jdbc.Driver";
+        String sURL = "jdbc:mysql://localhost:3306/tecno_phone";
+        String sql = "select * from proveedores where id_proveedor = '"+id+"';";
+        Connection con = null;
+        Class.forName(sDriver).newInstance();
+        con = DriverManager.getConnection(sURL,"root","1234");
+        System.out.println(sql);
+        Statement stmt = con.prepareStatement(sql);
+        JOptionPane.showMessageDialog(viewProveedores, stmt.executeUpdate(sql));
     }
     private void conexion(){
         JOptionPane.showMessageDialog(viewProveedores, "Conexion correcta");
@@ -196,8 +294,21 @@ public class ControllerProveedores {
         viewProveedores.jTextField_nombrecontacto.setVisible(true);
         viewProveedores.jTextField_telefono.setVisible(true);
         viewProveedores.jTextField_email.setVisible(true);
+        
+        viewProveedores.jLabel_idproveedor.setVisible(true);
+        viewProveedores.jLabel_nombre.setVisible(true);
+        viewProveedores.jLabel_rfc.setVisible(true);
+        viewProveedores.jLabel_calle.setVisible(true);
+        viewProveedores.jLabel_numero.setVisible(true);
+        viewProveedores.jLabel_colonia.setVisible(true);
+        viewProveedores.jLabel_ciudad.setVisible(true);
+        viewProveedores.jLabel_estado.setVisible(true);
+        viewProveedores.jLabel_nomcontacto.setVisible(true);
+        viewProveedores.jLabel1_telefono.setVisible(true);
+        viewProveedores.jLabel_email.setVisible(true);
     }
     private void ocultarTodoMenosId(){
+        viewProveedores.jTextField_id.setVisible(true);
         viewProveedores.jTextField_nombre.setVisible(false);
         viewProveedores.jTextField_rfc.setVisible(false);
         viewProveedores.jTextField_calle.setVisible(false);
@@ -208,21 +319,32 @@ public class ControllerProveedores {
         viewProveedores.jTextField_nombrecontacto.setVisible(false);
         viewProveedores.jTextField_telefono.setVisible(false);
         viewProveedores.jTextField_email.setVisible(false);
+        
+        viewProveedores.jLabel_idproveedor.setVisible(true);
+        viewProveedores.jLabel_nombre.setVisible(false);
+        viewProveedores.jLabel_rfc.setVisible(false);
+        viewProveedores.jLabel_calle.setVisible(false);
+        viewProveedores.jLabel_numero.setVisible(false);
+        viewProveedores.jLabel_colonia.setVisible(false);
+        viewProveedores.jLabel_ciudad.setVisible(false);
+        viewProveedores.jLabel_estado.setVisible(false);
+        viewProveedores.jLabel_nomcontacto.setVisible(false);
+        viewProveedores.jLabel1_telefono.setVisible(false);
+        viewProveedores.jLabel_email.setVisible(false);
     }
     private void ocultarId(){
-        viewProveedores.jTextField_id.setVisible(true);
+        viewProveedores.jLabel_idproveedor.setVisible(false);
+        viewProveedores.jTextField_id.setVisible(false);
     }
     private void sandwichActionPerformed(){
-        this.viewMain.setContentPane(null);
+        viewMain.setContentPane(viewProveedores);
         viewMain.revalidate();
         viewMain.repaint();
     }
     private void mostrarPanelMedio(){
-        if(viewProveedores.jPanel_Medio.isVisible()){
-            viewProveedores.jPanel_Medio.setVisible(false);
-            tarea = "ninguna";
-        }else{
-            viewProveedores.jPanel_Medio.setVisible(true);
-        }
+        viewProveedores.jPanel_Medio.setVisible(true);
+    }
+    private void ocultarPanelMedio(){
+        viewProveedores.jPanel_Medio.setVisible(false);
     }
 }
