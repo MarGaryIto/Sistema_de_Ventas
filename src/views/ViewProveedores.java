@@ -5,12 +5,13 @@
  */
 package views;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import mysql.ConexionOswa;
 
 /**
  *
@@ -18,8 +19,10 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ViewProveedores extends javax.swing.JPanel {
 
-    DefaultTableModel modeloTabla;
-    mysql.Conexion con = new mysql.Conexion();
+    public TableModel modeloTabla;
+    ConexionOswa conexionOswa = new ConexionOswa();
+
+    
     /**
      * Creates new form Proveedores
      * @throws java.sql.SQLException
@@ -34,18 +37,17 @@ public class ViewProveedores extends javax.swing.JPanel {
         String columna[] = new String[]{"id_proveedor","nombre","rfc","calle","no","colonia","ciudad","estado","nombre_contacto","telefono","email"};
         return columna;
     }
-    private void setFilas() throws SQLException{
+    public void setFilas() throws SQLException{
         try{
             String sql = "select id_proveedor,nombre,rfc,calle,no,colonia,ciudad,estado,nombre_contacto,telefono,email from proveedores;";
-            
-            PreparedStatement us = con.conexion().prepareStatement(sql);
-            try (ResultSet res = us.executeQuery()) {
+            try (ResultSet res = conexionOswa.getExecuteQuery(sql)) {
                 Object datos[] = new Object[11];//Numero de columnas de la consulta
                 
                 while (res.next()){
                     for(int i = 0;i<datos.length;i++){
                         datos[i] = res.getObject(i+1);
                     }
+                    
                     getModeloTabla().addRow(datos);
                 }
             } //Numero de columnas de la consulta
@@ -53,9 +55,10 @@ public class ViewProveedores extends javax.swing.JPanel {
             Logger.getLogger(ViewProveedores.class.getName()).log(Level.SEVERE,null,ex);
         }
     }
-    public void actualizaTabla(){
-        this.jTable_Proveedores.setModel(modeloTabla);
-        modeloTabla.fireTableDataChanged();
+    public void vaciaTabla(){
+        while(getModeloTabla().getRowCount()>0){
+            getModeloTabla().removeRow(0);
+        }
     }
 
     /**
@@ -109,6 +112,8 @@ public class ViewProveedores extends javax.swing.JPanel {
         jLabel_aceptar = new javax.swing.JLabel();
         jPanel_cancelar = new javax.swing.JPanel();
         jLabel_cancelar = new javax.swing.JLabel();
+        jPanel_cancelar1 = new javax.swing.JPanel();
+        jLabel_limpiar = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -339,7 +344,7 @@ public class ViewProveedores extends javax.swing.JPanel {
             jPanel_aceptarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel_aceptarLayout.createSequentialGroup()
                 .addGap(35, 35, 35)
-                .addComponent(jLabel_aceptar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel_aceptar, javax.swing.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE)
                 .addGap(39, 39, 39))
         );
         jPanel_aceptarLayout.setVerticalGroup(
@@ -358,16 +363,37 @@ public class ViewProveedores extends javax.swing.JPanel {
         jPanel_cancelar.setLayout(jPanel_cancelarLayout);
         jPanel_cancelarLayout.setHorizontalGroup(
             jPanel_cancelarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel_cancelarLayout.createSequentialGroup()
-                .addGap(36, 36, 36)
+            .addGroup(jPanel_cancelarLayout.createSequentialGroup()
+                .addGap(32, 32, 32)
                 .addComponent(jLabel_cancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(32, 32, 32))
+                .addGap(36, 36, 36))
         );
         jPanel_cancelarLayout.setVerticalGroup(
             jPanel_cancelarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel_cancelarLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel_cancelar)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jLabel_limpiar.setFont(new java.awt.Font("Century Gothic", 0, 12)); // NOI18N
+        jLabel_limpiar.setForeground(new java.awt.Color(51, 153, 255));
+        jLabel_limpiar.setText("Limpiar");
+
+        javax.swing.GroupLayout jPanel_cancelar1Layout = new javax.swing.GroupLayout(jPanel_cancelar1);
+        jPanel_cancelar1.setLayout(jPanel_cancelar1Layout);
+        jPanel_cancelar1Layout.setHorizontalGroup(
+            jPanel_cancelar1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel_cancelar1Layout.createSequentialGroup()
+                .addGap(36, 36, 36)
+                .addComponent(jLabel_limpiar, javax.swing.GroupLayout.DEFAULT_SIZE, 53, Short.MAX_VALUE)
+                .addGap(32, 32, 32))
+        );
+        jPanel_cancelar1Layout.setVerticalGroup(
+            jPanel_cancelar1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel_cancelar1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel_limpiar)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -417,34 +443,36 @@ public class ViewProveedores extends javax.swing.JPanel {
                 .addGroup(jPanel_MedioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel_MedioLayout.createSequentialGroup()
                         .addGap(32, 32, 32)
-                        .addComponent(jPanel_cancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(260, 260, 260))
+                        .addComponent(jPanel_cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(36, 36, 36)
+                        .addComponent(jPanel_cancelar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(jPanel_MedioLayout.createSequentialGroup()
                         .addGroup(jPanel_MedioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jTextField_ciudad)
                             .addGroup(jPanel_MedioLayout.createSequentialGroup()
-                                .addComponent(jLabel_ciudad, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel_ciudad, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
                                 .addGap(21, 21, 21)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel_MedioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jTextField_estado)
                             .addGroup(jPanel_MedioLayout.createSequentialGroup()
-                                .addComponent(jLabel_estado, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel_estado, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
                                 .addGap(19, 19, 19)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel_MedioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jTextField_nombrecontacto)
-                            .addComponent(jLabel_nomcontacto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel_MedioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1_telefono, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jTextField_telefono))))
+                            .addComponent(jLabel_nomcontacto, javax.swing.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel_MedioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1_telefono, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE)
+                    .addComponent(jTextField_telefono))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel_MedioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel_MedioLayout.createSequentialGroup()
-                        .addComponent(jLabel_email, javax.swing.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
+                        .addComponent(jLabel_email, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
                         .addGap(20, 20, 20))
-                    .addComponent(jTextField_email, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE))
+                    .addComponent(jTextField_email, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel_MedioLayout.setVerticalGroup(
@@ -477,10 +505,11 @@ public class ViewProveedores extends javax.swing.JPanel {
                     .addComponent(jTextField_telefono, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextField_numero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(27, 27, 27)
-                .addGroup(jPanel_MedioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel_cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel_aceptar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(23, 23, 23))
+                .addGroup(jPanel_MedioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel_aceptar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel_cancelar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel_cancelar1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(45, 45, 45))
         );
 
         jPanel3.setBackground(new java.awt.Color(0, 153, 204));
@@ -518,7 +547,7 @@ public class ViewProveedores extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addComponent(jPanel_Medio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(13, 13, 13)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0))
@@ -547,6 +576,7 @@ public class ViewProveedores extends javax.swing.JPanel {
     public javax.swing.JLabel jLabel_email;
     public javax.swing.JLabel jLabel_estado;
     public javax.swing.JLabel jLabel_idproveedor;
+    public javax.swing.JLabel jLabel_limpiar;
     public javax.swing.JLabel jLabel_nombre;
     public javax.swing.JLabel jLabel_nomcontacto;
     public javax.swing.JLabel jLabel_numero;
@@ -561,6 +591,7 @@ public class ViewProveedores extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel_Superior;
     public javax.swing.JPanel jPanel_aceptar;
     public javax.swing.JPanel jPanel_cancelar;
+    public javax.swing.JPanel jPanel_cancelar1;
     private javax.swing.JScrollPane jScrollPane1;
     public javax.swing.JTable jTable_Proveedores;
     public javax.swing.JTextField jTextField_calle;
@@ -580,7 +611,7 @@ public class ViewProveedores extends javax.swing.JPanel {
      * @return the modeloTabla
      */
     public DefaultTableModel getModeloTabla() {
-        return modeloTabla;
+        return (DefaultTableModel) modeloTabla;
     }
 
     /**

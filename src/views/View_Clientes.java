@@ -14,13 +14,14 @@ import java.sql.Statement;
 import javax.swing.table.DefaultTableModel;
 import java.util.logging.*;
 import javax.swing.table.TableModel;
+import views.ViewMain;
 
 /**
  *
  * @author Nancy04
  */
 public class View_Clientes extends javax.swing.JFrame {
-
+    ViewMain viewMain = new ViewMain();
     DefaultTableModel modelTable;
     mysql.Conexion con = new mysql.Conexion();
 
@@ -67,6 +68,7 @@ public class View_Clientes extends javax.swing.JFrame {
 
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
+        jLabel_Sandwich = new javax.swing.JLabel();
         Jbt_Add = new javax.swing.JButton();
         Jbt_Options = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -79,6 +81,13 @@ public class View_Clientes extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Century Gothic", 0, 18)); // NOI18N
         jLabel1.setText("Clientes");
 
+        jLabel_Sandwich.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/sandwich.png"))); // NOI18N
+        jLabel_Sandwich.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel_SandwichMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -87,11 +96,17 @@ public class View_Clientes extends javax.swing.JFrame {
                 .addContainerGap(362, Short.MAX_VALUE)
                 .addComponent(jLabel1)
                 .addGap(274, 274, 274))
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel_Sandwich)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(35, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel_Sandwich)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel1)
                 .addGap(19, 19, 19))
         );
@@ -160,6 +175,11 @@ public class View_Clientes extends javax.swing.JFrame {
         JFrame.setVisible(true);
     }//GEN-LAST:event_Jbt_OptionsMouseClicked
 
+    private void jLabel_SandwichMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel_SandwichMouseClicked
+        // TODO add your handling code here:
+        viewMain.setVisible(true);
+    }//GEN-LAST:event_jLabel_SandwichMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -200,8 +220,9 @@ public class View_Clientes extends javax.swing.JFrame {
     public javax.swing.JButton Jbt_Add;
     public javax.swing.JButton Jbt_Options;
     private javax.swing.JLabel jLabel1;
+    public javax.swing.JLabel jLabel_Sandwich;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable2;
+    public javax.swing.JTable jTable2;
     // End of variables declaration//GEN-END:variables
 }

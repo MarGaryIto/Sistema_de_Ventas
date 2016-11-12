@@ -15,22 +15,36 @@ import views.*;
  */
 public class Main {
     public static void main(String[]Gary) throws SQLException{
-        Object modules[] = new Object[2];
+        Object modules[] = new Object[6];
         
         ModelProveedores modelProveedores = new ModelProveedores();
         ViewProveedores viewProveedores = new ViewProveedores();
         ControllerProveedores controllerProveedores = new ControllerProveedores(modelProveedores,viewProveedores);
         
-        //ViewProductos viewProductos = new ViewProductos();
-       // AgregarProductos agregarProductos = new AgregarProductos();
-       // OpcionesProductos opcionesProductos = new OpcionesProductos();
-        ControllerProductos controllerProductos = new ControllerProductos();//AgregarProductos agregarProductos, OpcionesProductos opcionesProductos, ViewProductos viewProductos);
+        ModelProductos modelProductos = new ModelProductos();
+        ViewProductos viewProductos = new ViewProductos();
+        ControllerProductos controllerProductos = new ControllerProductos(viewProductos, modelProductos);
+        
+        Model_Add_User modelAddUser = new Model_Add_User();
+        View_Add_User viewAddUser = new View_Add_User();
+        Controller_Add_User controllerAddUser = new Controller_Add_User(modelAddUser, viewAddUser);
+        
+        Model_About modelAbout = new Model_About();
+        View_About viewAbout = new View_About();
+        Controller_About controllerAbout = new Controller_About(viewAbout, modelAbout);
+        
+    
         
         modules[0] = controllerProductos;
         modules[1] = controllerProveedores;
-        
+        modules[2] = controllerAddUser;
+        modules[3] = controllerAbout;
+       
+        modules[5] = controllerProductos;
         ModelMain modelMain = new ModelMain();
         ViewMain viewMain = new ViewMain();
         ControllerMain controllerMain = new ControllerMain(modelMain, viewMain, modules);
     }
+
+    
 }

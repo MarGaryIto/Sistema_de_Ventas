@@ -10,36 +10,39 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 import models.ModelProveedores;
 import views.ViewProveedores;
-import mysql.Conexion;
+import mysql.ConexionOswa;
+import mysql.LlenadoCampos;
 import views.ViewMain;
+import mysql.ToString;
 /**
  *
  * @author BLABPC23
  */
-public class ControllerProveedores {
+public final class ControllerProveedores {
     ModelProveedores modelProveedores;
     ViewProveedores viewProveedores;
     ControllerMain controllerMain;
     ViewMain viewMain;
-    Conexion conexion;
     private String tarea = "ninguna";
-    mysql.Conexion con = new mysql.Conexion();
-    DefaultTableModel modeloTabla;
     private String id;
+    ConexionOswa conexionOswa = new ConexionOswa();
+    ToString toString = new ToString();
+    LlenadoCampos llenadoCampos = new LlenadoCampos();
+    
     
     public ControllerProveedores(ModelProveedores modelProveedores,ViewProveedores viewProveedores) throws SQLException{
         this.modelProveedores = modelProveedores;
         this.viewProveedores = viewProveedores;
+        
         initView();
         mouseListener();
     }
@@ -51,6 +54,7 @@ public class ControllerProveedores {
         viewProveedores.jLabel_Conexion.addMouseListener(ActionPerformed_jLabels);
         viewProveedores.jLabel_aceptar.addMouseListener(ActionPerformed_jButons);
         viewProveedores.jLabel_cancelar.addMouseListener(ActionPerformed_jButons);
+        viewProveedores.jLabel_limpiar.addMouseListener(ActionPerformed_jButons);
         viewProveedores.jLabel_Sandwich.addMouseListener(Sandwich);
     }
     MouseAdapter ActionPerformed_jLabels = new MouseAdapter(){
@@ -117,13 +121,7 @@ public class ControllerProveedores {
                     case "editar":{
                     try {
                         ejecutarEdicion(id);
-                    } catch (ClassNotFoundException ex) {
-                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (InstantiationException ex) {
-                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (SQLException ex) {
-                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (IllegalAccessException ex) {
+                    } catch (ClassNotFoundException | InstantiationException | SQLException | IllegalAccessException ex) {
                         Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     }
@@ -141,25 +139,27 @@ public class ControllerProveedores {
                 {
                     try {
                         buscar();
-                    } catch (ClassNotFoundException ex) {
-                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (SQLException ex) {
-                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (InstantiationException ex) {
-                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (IllegalAccessException ex) {
+                    } catch (ClassNotFoundException | SQLException | InstantiationException | IllegalAccessException ex) {
                         Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
                         break;
                     case "conexion":
+                {
+                    try {
                         conexion();
+                    } catch (SQLException ex) {
+                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
                         break;
                     default:
                         break;
                 }
             }else if(evt.getComponent()==viewProveedores.jLabel_cancelar){
                 ocultarPanelMedio();
+            }else if(evt.getComponent()==viewProveedores.jLabel_limpiar){
+                limpiarCampos();
             }
             JLabel jlabel = (JLabel) evt.getComponent();
             jlabel.setForeground(Color.darkGray);
@@ -181,51 +181,48 @@ public class ControllerProveedores {
             sandwichActionPerformed();
         }
     };
+    
+    private void initView() {
+        viewProveedores.setVisible(true);
+    }
+    
     private void agregar() throws SQLException, ClassNotFoundException, InstantiationException, IllegalAccessException{    
         String nombre = viewProveedores.jTextField_nombre.getText();
+        llenadoCampos.campoVacioMensaje(nombre);
         String rfc = viewProveedores.jTextField_rfc.getText();
         String calle = viewProveedores.jTextField_calle.getText();
-        String no = viewProveedores.jTextField_numero.getText();
+        int no = toString.stringToInt(viewProveedores.jTextField_numero.getText()); 
         String colonia = viewProveedores.jTextField_colonia.getText();
         String ciudad = viewProveedores.jTextField_ciudad.getText();
         String estado = viewProveedores.jTextField_estado.getText();
         String nombre_contacto = viewProveedores.jTextField_nombrecontacto.getText();
-        String telefono = viewProveedores.jTextField_telefono.getText();
+        int telefono = toString.stringToInt(viewProveedores.jTextField_telefono.getText());
         String email = viewProveedores.jTextField_email.getText();
         String Datos = "'"+nombre+"','"+rfc+"','"+calle+"',"+no+",'"+colonia+"','"+ciudad+"','"+estado+"','"+nombre_contacto+"',"+telefono+",'"+email+"'";
         String Campos ="nombre,rfc,calle,no,colonia,ciudad,estado,nombre_contacto,telefono,email";
-        String sDriver = "com.mysql.jdbc.Driver";
-        String sURL = "jdbc:mysql://localhost:3306/tecno_phone";
         String sql = "insert into proveedores("+Campos+") values ("+Datos+");";
-        Connection con = null;
-        Class.forName(sDriver).newInstance();
-        con = DriverManager.getConnection(sURL,"root","1234");
-        System.out.println(sql);
-        Statement stmt = con.prepareStatement(sql);
-        stmt.executeUpdate(sql);
-        viewProveedores.revalidate();
-    } 
-
-    private void initView() {
-        viewProveedores.setVisible(true);
+        conexionOswa.executeUpdate(sql);
+        viewProveedores.vaciaTabla();
+        viewProveedores.setFilas();
     }
         
     private void editar() throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException{
         id = JOptionPane.showInputDialog(viewProveedores, "Dijite el id del proveedor a editar:");
-        mostrarPanelMedio();       
+        if (id.length()>0){
+            mostrarPanelMedio();
+        }else{
+            id = JOptionPane.showInputDialog(viewProveedores, "Error: Vuelva a dijitar el id del proveedor a editar:");
+        }
+               
     }
     private void eliminar() throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException{
         id = viewProveedores.jTextField_id.getText();
-        String sDriver = "com.mysql.jdbc.Driver";
-        String sURL = "jdbc:mysql://localhost:3306/tecno_phone";
-        String sql = "delete from proveedores where id_proveedor = '"+id+"';";
-        Connection con = null;
-        Class.forName(sDriver).newInstance();
-        con = DriverManager.getConnection(sURL,"root","1234");
-        System.out.println(sql);
-        Statement stmt = con.prepareStatement(sql);
-        stmt.executeUpdate(sql);
+        llenadoCampos.campoVacioMensaje(id);
+        String sql = "delete from proveedores where id_proveedor = "+id+";";
+        conexionOswa.executeUpdate(sql);
+ 
         viewProveedores.revalidate();
+        limpiarCampos();
     }
     private void ejecutarEdicion(String id) throws ClassNotFoundException, InstantiationException, SQLException, IllegalAccessException{
         viewProveedores.jTextField_id.setText(id);
@@ -239,57 +236,52 @@ public class ControllerProveedores {
         String nombre_contacto = viewProveedores.jTextField_nombrecontacto.getText();
         String telefono = viewProveedores.jTextField_telefono.getText();
         String email = viewProveedores.jTextField_email.getText();
-        String sDriver = "com.mysql.jdbc.Driver";
-        String sURL = "jdbc:mysql://localhost:3306/tecno_phone";
         String sql;
-        Connection con = null;
-        Class.forName(sDriver).newInstance();
-        con = DriverManager.getConnection(sURL,"root","1234");
         sql = "update proveedores set nombre = '"+nombre+"' where id_proveedor = "+id+";";
-        statementExecute(sql,con);
+        conexionOswa.executeUpdate(sql);
         sql = "update proveedores set rfc = '"+rfc+"' where id_proveedor = "+id+";";
-        statementExecute(sql,con);
+        conexionOswa.executeUpdate(sql);
         sql = "update proveedores set calle = '"+calle+"' where id_proveedor = "+id+";";
-        statementExecute(sql,con);
+        conexionOswa.executeUpdate(sql);
         sql = "update proveedores set no = '"+no+"' where id_proveedor = "+id+";";
-        statementExecute(sql,con);
+        conexionOswa.executeUpdate(sql);
         sql = "update proveedores set colonia = '"+colonia+"' where id_proveedor = "+id+";";
-        statementExecute(sql,con);
+        conexionOswa.executeUpdate(sql);
         sql = "update proveedores set ciudad = '"+ciudad+"' where id_proveedor = "+id+";";
-        statementExecute(sql,con);
+        conexionOswa.executeUpdate(sql);
         sql = "update proveedores set estado = '"+estado+"' where id_proveedor = "+id+";";
-        statementExecute(sql,con);
+        conexionOswa.executeUpdate(sql);
         sql = "update proveedores set nombre_contacto = '"+nombre_contacto+"' where id_proveedor = "+id+";";
-        statementExecute(sql,con);
+        conexionOswa.executeUpdate(sql);
         sql = "update proveedores set telefono = '"+telefono+"' where id_proveedor = "+id+";";
-        statementExecute(sql,con);
+        conexionOswa.executeUpdate(sql);
         sql = "update proveedores set email = '"+email+"' where id_proveedor = "+id+";";
-        statementExecute(sql,con);
-    }
-    private void statementExecute(String sql,Connection con) throws SQLException{
-        System.out.println(sql);
-        Statement stmt = con.prepareStatement(sql);
-        stmt.executeUpdate(sql);
+        conexionOswa.executeUpdate(sql);
+        limpiarCampos();
     }
     private void buscar() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException{
         String nombre = viewProveedores.jTextField_nombre.getText();
-        String sDriver = "com.mysql.jdbc.Driver";
-        String sURL = "jdbc:mysql://localhost:3306/tecno_phone";
         String sql = "select id_proveedor,nombre from proveedores where nombre = '"+nombre+"';";
         Connection con = null;
-        Class.forName(sDriver).newInstance();
-        con = DriverManager.getConnection(sURL,"root","1234");
+        con=DriverManager.getConnection("jdbc:mysql://localhost:3306/acme","root","");
         System.out.println(sql);
-        Statement stmt = con.prepareStatement(sql);
-        ResultSet rs = stmt.executeQuery(sql);
+        PreparedStatement us = con.prepareStatement(sql);
+        ResultSet rs = us.executeQuery();
         int i=1;
-        while(rs.next()){
-            JOptionPane.showMessageDialog(viewProveedores, nombre+" encontrado, id: "+rs.getObject(i));
-            i++;
+        String Resultado = "";
+        if(rs.first()){
+            while(rs.next()){
+                Resultado += rs.getObject(i)+", ";
+                i++;
+            }
+            JOptionPane.showMessageDialog(viewProveedores, "Valor '"+nombre+"' encontrado en id: "+Resultado);
+        }else{
+            JOptionPane.showMessageDialog(viewProveedores, "No encontrado");
         }
     }
-    private void conexion(){
+    private void conexion() throws SQLException{
         JOptionPane.showMessageDialog(viewProveedores, "Conexion correcta");
+        
     }
     private void mostrarTodo(){
         viewProveedores.jTextField_id.setVisible(true);
@@ -347,12 +339,26 @@ public class ControllerProveedores {
         viewProveedores.jLabel_nombre.setVisible(true);
         viewProveedores.jTextField_nombre.setVisible(true);
     }
+    private void limpiarCampos(){
+        viewProveedores.jTextField_id.setText("");
+        viewProveedores.jTextField_id.setText("");
+        viewProveedores.jTextField_nombre.setText("");
+        viewProveedores.jTextField_rfc.setText("");
+        viewProveedores.jTextField_calle.setText("");
+        viewProveedores.jTextField_numero.setText("");
+        viewProveedores.jTextField_colonia.setText("");
+        viewProveedores.jTextField_ciudad.setText("");
+        viewProveedores.jTextField_estado.setText("");
+        viewProveedores.jTextField_nombrecontacto.setText("");
+        viewProveedores.jTextField_telefono.setText("");
+        viewProveedores.jTextField_email.setText("");
+    }
     private void ocultarId(){
         viewProveedores.jLabel_idproveedor.setVisible(false);
         viewProveedores.jTextField_id.setVisible(false);
     }
     private void sandwichActionPerformed(){
-        viewMain.setContentPane(viewProveedores);
+        viewMain.setVisible(true);
         viewMain.revalidate();
         viewMain.repaint();
     }

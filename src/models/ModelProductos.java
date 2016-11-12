@@ -1,13 +1,17 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package models;
 
-import java.sql.DriverManager;
+import java.util.Date;
+import javax.swing.table.DefaultTableModel;
+//import sax.DBConnection;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import views.ViewProductos;
-
+import java.sql.DriverManager;
 import java.sql.SQLException;
-import javax.swing.JOptionPane;
+import views.ViewProductos;
 
 /**
  *
@@ -15,86 +19,72 @@ import javax.swing.JOptionPane;
  */
 public class ModelProductos {
 
-    private Connection conexion;
-    private Statement st;
-    private ResultSet rs;
+    private String maquina = "locahost";
+    private String usuario = "root";
+    private String clave = "";
+    private int puerto = 3306;
+    private String servidor = "";
+    private static Connection conexion = null;
+   // private DBConnection conection = new DBConnection(3306, "localhost", "acme", "root", "");
 
-    public void Conectar() {
-        try {
-            conexion = DriverManager.getConnection("jdbc:mysql://localhost/TecnoFon", "root", "");
-            st = conexion.createStatement();
+    private String id_producto = "";
+    private String producto = "";
+    private String descripcion = "";
+    private String precio_compra = "";
+    private String precio_venta = "";
+    private String existencias = "";
 
-        } catch (SQLException err) {
-            JOptionPane.showMessageDialog(null, "Error de Conexion " + err.getMessage());
-
-        }
+    public String getId_producto() {
+        return id_producto;
     }
 
-    private String producto;
-    private String descripcion;
-    private String compra;
-    private String venta;
-    private int existencia;
+    public void setId_producto(String id_producto) {
+        this.id_producto = id_producto;
+    }
 
-    public String getproducto() {
+    public String getProducto() {
         return producto;
     }
 
-    public void setproducto(String producto) {
+    public void setProducto(String producto) {
         this.producto = producto;
     }
 
-    public String getdescripcion() {
+    public String getDescripcion() {
         return descripcion;
     }
 
-    public void setdescripcion(String descripcion) {
+    public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
 
-    public String getcompra() {
-        return compra;
+    public String getPrecio_compra() {
+        return precio_compra;
     }
 
-    public void setcompra(String compra) {
-        this.compra = compra;
+    public void setPrecio_compra(String precio_compra) {
+        this.precio_compra = precio_compra;
     }
 
-    public String getventa() {
-        return venta;
+    public String getPrecio_venta() {
+        return precio_venta;
     }
 
-    public void setventa(String venta) {
-        this.venta = venta;
+    public void setPrecio_venta(String precio_venta) {
+        this.precio_venta = precio_venta;
     }
 
-    public int getexistencia() {
-        return existencia;
+    public String getExistencias() {
+        return existencias;
     }
 
-    public void setexistencia(int existencia) {
-        this.existencia = existencia;
+    public void setExistencias(String existencias) {
+        this.existencias = existencias;
     }
-
-    public void borra() {
-        this.producto = "";
-        this.descripcion = "";
-        this.existencia = 0;
-        this.venta = "";
-        this.compra = "";
-
+    
+    public String executeSql(){
+        String sql = "UPDATE prductos SET producto= '" +producto + "', Descripcion = '" + descripcion + "', precio_compra = '" + precio_compra + "', precio_venta = '" + precio_venta + "', Existencias = '" +  "'WHERE id_producto = '" + id_producto + "''";
+        return sql;
     }
-
-    public void guadarRegistro() {
-        try {
-            Conectar();
-
-            st.executeUpdate("Insert into productos (producto,descripcion,precio_compra,precio_venta,existencia)" + " values ('" + producto + "','" + descripcion + "','" + compra + "','" + venta + "','" + existencia + "')");
-
-        } catch (SQLException err) {
-            JOptionPane.showMessageDialog(null, "Error de guardar registros" + err.getMessage());
-        }
-
-    }
-
+  
 }
