@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import models.ModelProveedores;
 import mysql.ConexionOswa;
 
 /**
@@ -21,15 +22,13 @@ public class ViewProveedores extends javax.swing.JPanel {
 
     public TableModel modeloTabla;
     ConexionOswa conexionOswa = new ConexionOswa();
-
-    
+    ModelProveedores modelProveedores = new ModelProveedores();
     /**
      * Creates new form Proveedores
      * @throws java.sql.SQLException
      */
     public ViewProveedores() throws SQLException{
         modeloTabla = new DefaultTableModel(null,getColumnas());
-        setFilas();
         initComponents();
         this.jPanel_Medio.setVisible(false);
     }
@@ -39,9 +38,10 @@ public class ViewProveedores extends javax.swing.JPanel {
     }
     public void setFilas() throws SQLException{
         try{
-            String sql = "select id_proveedor,nombre,rfc,calle,no,colonia,ciudad,estado,nombre_contacto,telefono,email from proveedores;";
+            String sql = modelProveedores.getSql();
+            int numeroColumnas = modelProveedores.getNumeroColumnas();
             try (ResultSet res = conexionOswa.getExecuteQuery(sql)) {
-                Object datos[] = new Object[11];//Numero de columnas de la consulta
+                Object datos[] = new Object[numeroColumnas];//Numero de columnas de la consulta
                 
                 while (res.next()){
                     for(int i = 0;i<datos.length;i++){
@@ -83,7 +83,7 @@ public class ViewProveedores extends javax.swing.JPanel {
         jPanel_Buscar = new javax.swing.JPanel();
         jLabel_Buscar = new javax.swing.JLabel();
         jPanel_Conexion = new javax.swing.JPanel();
-        jLabel_Conexion = new javax.swing.JLabel();
+        jLabel_Tabla = new javax.swing.JLabel();
         jLabel_Sandwich = new javax.swing.JLabel();
         jPanel_Medio = new javax.swing.JPanel();
         jLabel_idproveedor = new javax.swing.JLabel();
@@ -140,7 +140,7 @@ public class ViewProveedores extends javax.swing.JPanel {
         jPanel_AgregarLayout.setHorizontalGroup(
             jPanel_AgregarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel_AgregarLayout.createSequentialGroup()
-                .addContainerGap(41, Short.MAX_VALUE)
+                .addContainerGap(46, Short.MAX_VALUE)
                 .addComponent(jLabel_Agregar)
                 .addGap(36, 36, 36))
         );
@@ -163,7 +163,7 @@ public class ViewProveedores extends javax.swing.JPanel {
         jPanel_EditarLayout.setHorizontalGroup(
             jPanel_EditarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel_EditarLayout.createSequentialGroup()
-                .addContainerGap(41, Short.MAX_VALUE)
+                .addContainerGap(46, Short.MAX_VALUE)
                 .addComponent(jLabe_lEditar, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(30, 30, 30))
         );
@@ -188,7 +188,7 @@ public class ViewProveedores extends javax.swing.JPanel {
             .addGroup(jPanel_EliminarLayout.createSequentialGroup()
                 .addGap(33, 33, 33)
                 .addComponent(jLabel_Eliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(41, Short.MAX_VALUE))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
         jPanel_EliminarLayout.setVerticalGroup(
             jPanel_EliminarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -211,7 +211,7 @@ public class ViewProveedores extends javax.swing.JPanel {
             .addGroup(jPanel_BuscarLayout.createSequentialGroup()
                 .addGap(34, 34, 34)
                 .addComponent(jLabel_Buscar, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(44, Short.MAX_VALUE))
+                .addContainerGap(49, Short.MAX_VALUE))
         );
         jPanel_BuscarLayout.setVerticalGroup(
             jPanel_BuscarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -222,10 +222,10 @@ public class ViewProveedores extends javax.swing.JPanel {
 
         jPanel_Conexion.setBackground(new java.awt.Color(0, 153, 204));
 
-        jLabel_Conexion.setFont(new java.awt.Font("Century Gothic", 0, 14)); // NOI18N
-        jLabel_Conexion.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel_Conexion.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/conectar.png"))); // NOI18N
-        jLabel_Conexion.setText("Actualizar");
+        jLabel_Tabla.setFont(new java.awt.Font("Century Gothic", 0, 14)); // NOI18N
+        jLabel_Tabla.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel_Tabla.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/conectar.png"))); // NOI18N
+        jLabel_Tabla.setText("Tabla");
 
         javax.swing.GroupLayout jPanel_ConexionLayout = new javax.swing.GroupLayout(jPanel_Conexion);
         jPanel_Conexion.setLayout(jPanel_ConexionLayout);
@@ -233,14 +233,14 @@ public class ViewProveedores extends javax.swing.JPanel {
             jPanel_ConexionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel_ConexionLayout.createSequentialGroup()
                 .addGap(37, 37, 37)
-                .addComponent(jLabel_Conexion)
-                .addContainerGap(41, Short.MAX_VALUE))
+                .addComponent(jLabel_Tabla)
+                .addContainerGap(46, Short.MAX_VALUE))
         );
         jPanel_ConexionLayout.setVerticalGroup(
             jPanel_ConexionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel_ConexionLayout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addComponent(jLabel_Conexion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jLabel_Tabla, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jLabel_Sandwich.setIcon(new javax.swing.ImageIcon(getClass().getResource("/media/sandwich.png"))); // NOI18N
@@ -253,7 +253,7 @@ public class ViewProveedores extends javax.swing.JPanel {
                 .addContainerGap()
                 .addComponent(jLabel_Sandwich)
                 .addGap(12, 12, 12)
-                .addComponent(jLabel_Proveedores, javax.swing.GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE)
+                .addComponent(jLabel_Proveedores, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
                 .addGap(46, 46, 46)
                 .addComponent(jPanel_Agregar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -445,8 +445,7 @@ public class ViewProveedores extends javax.swing.JPanel {
                         .addGap(32, 32, 32)
                         .addComponent(jPanel_cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(36, 36, 36)
-                        .addComponent(jPanel_cancelar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jPanel_cancelar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel_MedioLayout.createSequentialGroup()
                         .addGroup(jPanel_MedioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jTextField_ciudad)
@@ -564,10 +563,10 @@ public class ViewProveedores extends javax.swing.JPanel {
     public javax.swing.JLabel jLabel1_telefono;
     public javax.swing.JLabel jLabel_Agregar;
     public javax.swing.JLabel jLabel_Buscar;
-    public javax.swing.JLabel jLabel_Conexion;
     public javax.swing.JLabel jLabel_Eliminar;
     private javax.swing.JLabel jLabel_Proveedores;
     public javax.swing.JLabel jLabel_Sandwich;
+    public javax.swing.JLabel jLabel_Tabla;
     public javax.swing.JLabel jLabel_aceptar;
     public javax.swing.JLabel jLabel_calle;
     public javax.swing.JLabel jLabel_cancelar;

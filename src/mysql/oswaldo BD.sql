@@ -24,15 +24,18 @@ SET time_zone = "+00:00";
 --
 -- Estructura de tabla para la tabla `clientes`
 --
+create database tecno_phone;
+use tecno_phone;
 
 CREATE TABLE usuarios (
     id_usuarios int(4) not null auto_increment primary key,
     nombre varchar(15) not null,
-    contrasena varchar(15) not null
+    contrasena varchar(15) not null,
+    tipo_usuario varchar(15) not null
     );
 
 -- --------------------------------------------------------
--- insert into usuarios(nombre,contrasena) values("margarito","1234");
+insert into usuarios(nombre,contrasena,tipo_usuario) values("margarito","1234","administrador");   
 --
 -- Estructura de tabla para la tabla `clientes`
 --

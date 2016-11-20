@@ -6,72 +6,51 @@
 package controllers;
 
 import java.awt.Color;
+import java.awt.HeadlessException;
+import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import models.ModelMain;
-import views.*;
-import models.Model_Add_User;
-import controllers.Controller_Add_User;
-import controllers.ControllerClientes;
-import controllers.ControllerProductos;
-import java.awt.HeadlessException;
-import mysql.Conexion;
 import mysql.ConexionOswa;
-
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.view.JasperViewer;
+import views.*;
 /**
  *
  * @author MarGaryIto
  */
-public class ControllerMain {
-
+public class ControllerMain{
     ModelMain modelMain;
     ViewMain viewMain;
     ViewProveedores viewProveedores;
     ControllerProductos controllerProductos;
     ControllerProveedores controllerProveedores;
     ControllerClientes controllerClientes;
-    Model_Add_User modelAddUser;
-    View_Add_User viewAddUser;
-    Controller_Add_User controllerAddUser;
-    Controller_About controllerAbout;
-    View_About viewAbout;
-    View_Clientes viewClients;
-    ViewProductos viewProductos;
-    boolean inicionSesion = false;
-    ConexionOswa conexionOswa = new ConexionOswa();
+    ConexionOswa conexionOswa = new ConexionOswa();    
     
-    
-    Conexion conexion;
-
-    Object modules[];
-
-    mysql.Conexion con = new mysql.Conexion();
-
-    public ControllerMain(ModelMain modelMain, ViewMain viewMain, Object modules[]) {
+    public ControllerMain(ModelMain modelMain,ViewMain viewMain,Object modules[]){
         this.modelMain = modelMain;
         this.viewMain = viewMain;
-
-               
-        controllerProveedores = (ControllerProveedores) modules[1];
-        controllerAddUser = (Controller_Add_User) modules[2];
-        controllerAbout = (Controller_About) modules[3];
-        controllerClientes = (ControllerClientes) modules[4];
-        controllerProductos = (ControllerProductos) modules[5];
         
-
+        controllerProductos = (ControllerProductos)modules[0];
+        controllerProveedores = (ControllerProveedores)modules[1];
+        
         initView();
         mouseListener();
     }
-
-    private void mouseListener() {
+    private void mouseListener(){
         viewMain.jLabel_Ayuda.addMouseListener(ActionPerformed_jLabels);
         viewMain.jLabel_Ayuda_AcercaDe.addMouseListener(ActionPerformed_jLabels);
         viewMain.jLabel_Catalogos.addMouseListener(ActionPerformed_jLabels);
@@ -89,37 +68,33 @@ public class ControllerMain {
         viewMain.jLabel_Sesiones.addMouseListener(ActionPerformed_jLabels);
         viewMain.jLabel_Sesiones_IniciarSesion.addMouseListener(ActionPerformed_jLabels);
         viewMain.jLabel_Sesiones_Usuarios.addMouseListener(ActionPerformed_jLabels);
-        viewMain.jLabel_Aceptar.addMouseListener(ActionPerformed_jLabels);
+        viewMain.jLabel_Aceptar.addMouseListener(ActionPerformed_jLabels);       
     }
-    MouseAdapter ActionPerformed_jLabels = new MouseAdapter() {
+    MouseAdapter ActionPerformed_jLabels = new MouseAdapter(){
         @Override
-        public void mouseClicked(MouseEvent evt) {
-            if (evt.getComponent() == viewMain.jLabel_Catalogos_Proveedores) {
-                if(inicionSesion==true){
+        public void mouseClicked(MouseEvent evt){
+            if(evt.getComponent()==viewMain.jLabel_Catalogos_Proveedores){
+                if("administrador".equals(modelMain.getTipoUsuario())){
+                    
                     jLabel_Catalogos_Proveedores_ActionPerformed();
                 }else{
                     JOptionPane.showMessageDialog(viewMain, "Asegurese de iniciar sesion");
                 }
-            }
-            if (evt.getComponent() == viewMain.jLabel_Aceptar) {
+            }else if(evt.getComponent()==viewMain.jLabel_Aceptar){
                 tryLogg();
-            }
-            if (evt.getComponent() == viewMain.jLabel_Catalogos_Clientes) {
-                if(inicionSesion==true){
-                    jLabel_Catalogos_Clientes_ActionPerformed();
+            }else if(evt.getComponent()==viewMain.jLabel_Catalogos_Clientes){
+                if("administrador".equals(modelMain.getTipoUsuario())){
+                    jLabel_Catalogos_Clientes_ActionPerformed(); 
                 }else{
                     JOptionPane.showMessageDialog(viewMain, "Asegurese de iniciar sesion");
                 }
-            }
-            if (evt.getComponent() == viewMain.jLabel_Sesiones_Usuarios){
-                jLabel_Sesiones_Usuarios_ActionPerformed();
-            }
-            if(evt.getComponent() == viewMain.jLabel_Ayuda_AcercaDe){
-                jLabel_Ayuda_AcercaDe_ActionPerformed();
-            }
-            if(evt.getComponent() == viewMain.jLabel_Catalogos_Productos){
-                if(inicionSesion==true){
-                    jLabel_Catalogos_Productos_ActionPerformed();
+            }else if(evt.getComponent()==viewMain.jLabel_Reportes_Proveedores){
+                if("administrador".equals(modelMain.getTipoUsuario())){
+                    try { 
+                        reporteProveedores();
+                    } catch (JRException ex) {
+                        Logger.getLogger(ControllerMain.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }else{
                     JOptionPane.showMessageDialog(viewMain, "Asegurese de iniciar sesion");
                 }
@@ -127,54 +102,52 @@ public class ControllerMain {
             JLabel jlabel = (JLabel) evt.getComponent();
             jlabel.setForeground(Color.darkGray);
         }
-
         @Override
-        public void mouseEntered(MouseEvent men) {
+        public void mouseEntered(MouseEvent men){
             JLabel jlabel = (JLabel) men.getComponent();
             jlabel.setForeground(Color.gray);
         }
-
         @Override
-        public void mouseExited(MouseEvent mle) {
+        public void mouseExited(MouseEvent mle){
             JLabel jlabel = (JLabel) mle.getComponent();
             jlabel.setForeground(Color.white);
         }
     };
-
-    private void initView() {
+    public void initView(){
         viewMain.setTitle("TecnoPhone");
         viewMain.setLocationRelativeTo(null);
         viewMain.setVisible(true);
     }
-
-    public void jLabel_Catalogos_Proveedores_ActionPerformed() {
+    
+    public void jLabel_Catalogos_Proveedores_ActionPerformed(){
         this.viewMain.setContentPane(controllerProveedores.viewProveedores);
         this.viewMain.revalidate();
         this.viewMain.repaint();
     }
-
-    public void jLabel_Catalogos_Clientes_ActionPerformed() {
-        View_Clientes viewClients = new View_Clientes();
-        viewClients.setVisible(true);
-    }
-
-    public void jLabel_Sesiones_Usuarios_ActionPerformed() {
-        this.controllerAddUser.Conectar();
-        this.viewMain.setContentPane(controllerAddUser.viewAddUser);
+    public void HolaTransacciones_ActionPerformed(){
+        this.viewMain.setContentPane(controllerClientes.viewProductos);
         this.viewMain.revalidate();
         this.viewMain.repaint();
     }
-    public void jLabel_Ayuda_AcercaDe_ActionPerformed(){
-        this.viewMain.setContentPane(controllerAbout.viewAbout);
+    public void setContentPaneInicio(){
+        this.viewMain.setContentPane(viewMain);
         this.viewMain.revalidate();
         this.viewMain.repaint();
     }
-    public void jLabel_Catalogos_Productos_ActionPerformed(){
-        this.viewMain.setContentPane(controllerProductos.viewProductos);
-        this.viewMain.revalidate();
-        this.viewMain.repaint();
+    public void reporteProveedores() throws JRException{
+        conexionOswa.conexion();
+        String dir = "D:\\Sistema_de_Ventas\\src\\views\\reportProveedores.jrxml";
+        JasperReport reporteJasper = JasperCompileManager.compileReport(dir);
+        JasperPrint mostrarReporte = JasperFillManager.fillReport(reporteJasper, null, conexionOswa.conexion());
+        JasperViewer.viewReport(mostrarReporte);
     }
-
+    public void regresarContentPaneInicio(){
+        
+    }
+    public void jLabel_Catalogos_Clientes_ActionPerformed(){
+        View_Clientes JFrame = new View_Clientes();
+        JFrame.setVisible(true);
+    }
     public void tryLogg(){
         if(viewMain.jLabel_Sesiones_Usuarios.getText().length()>0 && viewMain.jPasswordField_Contrasena.getPassword().length>0){
         try{
@@ -182,13 +155,16 @@ public class ControllerMain {
             String contrasena = new String(viewMain.jPasswordField_Contrasena.getPassword());
             String sql = "SELECT * FROM usuarios WHERE nombre='"+usuario+"' AND contrasena='"+contrasena+"';";
  
-            ResultSet resultadosConsulta = conexionOswa.getExecuteQuery(sql);
+            ResultSet rs = conexionOswa.getExecuteQuery(sql);
  
-            if( resultadosConsulta.first()){
+            if( rs.first()){
                 JOptionPane.showMessageDialog(viewMain, "Acceso Correcto"); 
                 viewMain.jPanel_Loggin.setVisible(false);
                 viewMain.jLabel_Aceptar.setText(usuario);
-                inicionSesion = true;
+                modelMain.setTipoUsuario(""+rs.getObject(4));
+                System.out.println("Tipo de usuario: "+rs.getObject(4));
+                Image imagenInterna = new ImageIcon(getClass().getResource("user_mar.gif")).getImage();
+                viewMain.jLabel_icon.setIcon((Icon) imagenInterna);
             }else{
                 JOptionPane.showMessageDialog(viewMain, "Error: Usuario o Contraseña Incorrecto");
             }

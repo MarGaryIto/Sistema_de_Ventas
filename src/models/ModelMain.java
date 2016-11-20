@@ -11,20 +11,20 @@ package models;
  * @author MarGaryIto
  */
 public class ModelMain {
-    private String usuario="";
+    private String tipoUsuario;
 
     /**
-     * @return the usuario
+     * @return the tipoUsuario
      */
-    public String getUsuario() {
-        return usuario;
+    public String getTipoUsuario() {
+        return tipoUsuario;
     }
 
     /**
-     * @param usuario the usuario to set
+     * @param tipoUsuario the tipoUsuario to set
      */
-    public void setUsuario(String usuario) {
-        this.usuario = usuario;
+    public void setTipoUsuario(String tipoUsuario) {
+        this.tipoUsuario = tipoUsuario;
     }
     
 }

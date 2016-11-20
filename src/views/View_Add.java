@@ -4,66 +4,61 @@
  * and open the template in the editor.
  */
 package views;
-
 import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.swing.JOptionPane;
-import views.ViewMain;
-
 /**
  *
  * @author Nancy04
  */
 public class View_Add extends javax.swing.JFrame {
-
-    ViewMain viewMain = new ViewMain();
-    private Connection conexion;
-    private Statement st;
-    private ResultSet rs;
-
+private Connection conexion;     
+private Statement st;     
+private ResultSet rs;
     /**
      * Creates new form View_Add
      */
-    public void Conectar() {
-        try {
-            conexion = DriverManager.getConnection("jdbc:mysql://localhost:3306/acme", "root", "");
-            st = conexion.createStatement();
+public void Conectar(){
+         try{ 
+            conexion=DriverManager.getConnection("jdbc:mysql://localhost:3306/acme","root","");                     
+            st=conexion.createStatement(); 
 
-            rs = st.executeQuery("Select * from clientes");
+            rs=st.executeQuery("Select * from clientes");             
 
-            rs.next();
+            rs.next(); 
 
-        } catch (SQLException err) {
-            JOptionPane.showMessageDialog(null, "Error " + err.getMessage());
-        }
+         }catch(SQLException err){ 
+            JOptionPane.showMessageDialog(null,"Error "+err.getMessage()); 
+        } 
 
-    }
+  }
 
-    private void guadarRegistro() {
-        try {
-            String nombre = this.Jtf_Name.getText();
-            String ApPaterno = this.Jtf_ApPaterno.getText();
-            String ApMaterno = this.Jtf_ApMaterno.getText();
-            String Telefono = this.Jtf_Tel.getText();
-            String Email = this.Jtf_Email.getText();
-            String Rfc = this.Jtf_Rfc.getText();
-            String Calle = this.Jtf_Street.getText();
-            String Numero = this.Jtf_No.getText();
-            String Colonia = this.Jtf_Col.getText();
-            String Ciudad = this.Jtf_City.getText();
-            String Estado = this.Jtf_State.getText();
+private void guadarRegistro() {        
+       try{ 
+            String nombre=this.Jtf_Name.getText(); 
+            String ApPaterno=this.Jtf_ApPaterno.getText();
+            String ApMaterno=this.Jtf_ApMaterno.getText(); 
+            String Telefono= this.Jtf_Tel.getText();
+            String Email=this.Jtf_Email.getText();
+            String Rfc=this.Jtf_Rfc.getText();
+            String Calle=this.Jtf_Street.getText();
+            String Numero=this.Jtf_No.getText();
+            String Colonia=this.Jtf_Col.getText();
+            String Ciudad=this.Jtf_City.getText();
+            String Estado=this.Jtf_State.getText();
+            
+          st.executeUpdate("INSERT INTO clientes (nombre,ap_paterno,ap_materno,telefono,email,rfc,calle,no,colonia,ciudad,estado) "+" values ('"+nombre+"','"+ApPaterno+"','"+ApMaterno+"','"+Telefono+"','"+Email+"','"+Rfc+"','"+Calle+"','"+Numero+"','"+Colonia+"','"+Ciudad+"','"+Estado+"');"); 
 
-            st.executeUpdate("INSERT INTO clientes (nombre,ap_paterno,ap_materno,telefono,email,rfc,calle,no,colonia,ciudad,estado) " + " values ('" + nombre + "','" + ApPaterno + "','" + ApMaterno + "','" + Telefono + "','" + Email + "','" + Rfc + "','" + Calle + "','" + Numero + "','" + Colonia + "','" + Ciudad + "','" + Estado + "');");
+     
 
-        } catch (SQLException err) {
-            JOptionPane.showMessageDialog(null, "Error " + err.getMessage());
-        }
+         }catch(SQLException err){ 
+            JOptionPane.showMessageDialog(null,"Error "+err.getMessage()); 
+        } 
 
-    }
-
+    } 
     public View_Add() {
         initComponents();
     }
@@ -129,7 +124,7 @@ public class View_Add extends javax.swing.JFrame {
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(41, Short.MAX_VALUE)
+                .addContainerGap(30, Short.MAX_VALUE)
                 .addComponent(jLabel1)
                 .addGap(24, 24, 24))
         );
@@ -285,7 +280,7 @@ public class View_Add extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel12)
                     .addComponent(Jtf_State, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(33, Short.MAX_VALUE))
         );
 
         pack();

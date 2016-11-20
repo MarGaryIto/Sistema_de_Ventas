@@ -1,0 +1,7 @@
+¡Gracias por escoger mi tutorial!
+
+Para hacer las cosas más fáciles para usted, todos los scripts que antes había que ejecutar uno por uno, quedaron ahora en un solo conveniente archivo: 'scripts.sql'.
+
+Adicionalmente, si aún desea tener acceso a los archivos antiguos, puede encontrarlos en la carpeta ‘legacy’.
+
+- Daniel.

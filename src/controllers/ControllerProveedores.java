@@ -8,19 +8,17 @@ package controllers;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import main.Main;
+import models.ModelMain;
 import models.ModelProveedores;
 import views.ViewProveedores;
 import mysql.ConexionOswa;
-import mysql.LlenadoCampos;
 import views.ViewMain;
 import mysql.ToString;
 /**
@@ -32,26 +30,30 @@ public final class ControllerProveedores {
     ViewProveedores viewProveedores;
     ControllerMain controllerMain;
     ViewMain viewMain;
+    ModelMain modelMain;
     private String tarea = "ninguna";
     private String id;
     ConexionOswa conexionOswa = new ConexionOswa();
     ToString toString = new ToString();
-    LlenadoCampos llenadoCampos = new LlenadoCampos();
+    Object modules[];
+    Main main;
     
     
     public ControllerProveedores(ModelProveedores modelProveedores,ViewProveedores viewProveedores) throws SQLException{
         this.modelProveedores = modelProveedores;
         this.viewProveedores = viewProveedores;
         
+        setTablaValoresOriginales();
         initView();
         mouseListener();
+        
     }
     private void mouseListener(){
         viewProveedores.jLabel_Agregar.addMouseListener(ActionPerformed_jLabels);
         viewProveedores.jLabe_lEditar.addMouseListener(ActionPerformed_jLabels);
         viewProveedores.jLabel_Eliminar.addMouseListener(ActionPerformed_jLabels);
         viewProveedores.jLabel_Buscar.addMouseListener(ActionPerformed_jLabels);
-        viewProveedores.jLabel_Conexion.addMouseListener(ActionPerformed_jLabels);
+        viewProveedores.jLabel_Tabla.addMouseListener(ActionPerformed_jLabels);
         viewProveedores.jLabel_aceptar.addMouseListener(ActionPerformed_jButons);
         viewProveedores.jLabel_cancelar.addMouseListener(ActionPerformed_jButons);
         viewProveedores.jLabel_limpiar.addMouseListener(ActionPerformed_jButons);
@@ -60,11 +62,17 @@ public final class ControllerProveedores {
     MouseAdapter ActionPerformed_jLabels = new MouseAdapter(){
         @Override
         public void mouseClicked(MouseEvent evt){
-            if(evt.getComponent()==viewProveedores.jLabel_Conexion){
-                tarea = "conexion";
-                mostrarPanelMedio();
-                ocultarTodoMenosId();
-                ocultarId();
+            if(evt.getComponent()==viewProveedores.jLabel_Tabla){
+                int eleccion = JOptionPane.showConfirmDialog(viewProveedores,"Refrescar tabla a valores iniciales");
+                System.out.println(eleccion);
+                if(eleccion==0){
+                    try {
+                        viewProveedores.vaciaTabla();
+                        setTablaValoresOriginales();
+                    } catch (SQLException ex) {
+                        Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
             }else if(evt.getComponent()==viewProveedores.jLabel_Agregar){
                 mostrarPanelMedio();
                 mostrarTodo();
@@ -147,7 +155,7 @@ public final class ControllerProveedores {
                     case "conexion":
                 {
                     try {
-                        conexion();
+                        tabla();
                     } catch (SQLException ex) {
                         Logger.getLogger(ControllerProveedores.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -157,6 +165,7 @@ public final class ControllerProveedores {
                         break;
                 }
             }else if(evt.getComponent()==viewProveedores.jLabel_cancelar){
+                limpiarCampos();
                 ocultarPanelMedio();
             }else if(evt.getComponent()==viewProveedores.jLabel_limpiar){
                 limpiarCampos();
@@ -187,101 +196,147 @@ public final class ControllerProveedores {
     }
     
     private void agregar() throws SQLException, ClassNotFoundException, InstantiationException, IllegalAccessException{    
+        String[][] elementosClasificacion = new  String[2][10];
         String nombre = viewProveedores.jTextField_nombre.getText();
-        llenadoCampos.campoVacioMensaje(nombre);
+        elementosClasificacion[0][0]=nombre;elementosClasificacion[1][0]="nombre";
         String rfc = viewProveedores.jTextField_rfc.getText();
+        elementosClasificacion[0][1]=rfc;elementosClasificacion[1][1]="rfc";
         String calle = viewProveedores.jTextField_calle.getText();
+        elementosClasificacion[0][2]=calle;elementosClasificacion[1][2]="calle";
         int no = toString.stringToInt(viewProveedores.jTextField_numero.getText()); 
+        elementosClasificacion[0][3]=""+no;elementosClasificacion[1][3]="no";
         String colonia = viewProveedores.jTextField_colonia.getText();
+        elementosClasificacion[0][4]=colonia;elementosClasificacion[1][4]="colonia";
         String ciudad = viewProveedores.jTextField_ciudad.getText();
+        elementosClasificacion[0][5]=ciudad;elementosClasificacion[1][5]="ciudad";
         String estado = viewProveedores.jTextField_estado.getText();
+        elementosClasificacion[0][6]=estado;elementosClasificacion[1][6]="estado";
         String nombre_contacto = viewProveedores.jTextField_nombrecontacto.getText();
+        elementosClasificacion[0][7]=nombre_contacto;elementosClasificacion[1][7]="nombre de contacto";
         int telefono = toString.stringToInt(viewProveedores.jTextField_telefono.getText());
+        elementosClasificacion[0][8]=""+telefono;elementosClasificacion[1][8]="telefono";
         String email = viewProveedores.jTextField_email.getText();
+        elementosClasificacion[0][9]=email;elementosClasificacion[1][9]="email";
         String Datos = "'"+nombre+"','"+rfc+"','"+calle+"',"+no+",'"+colonia+"','"+ciudad+"','"+estado+"','"+nombre_contacto+"',"+telefono+",'"+email+"'";
         String Campos ="nombre,rfc,calle,no,colonia,ciudad,estado,nombre_contacto,telefono,email";
-        String sql = "insert into proveedores("+Campos+") values ("+Datos+");";
-        conexionOswa.executeUpdate(sql);
-        viewProveedores.vaciaTabla();
-        viewProveedores.setFilas();
-    }
-        
-    private void editar() throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException{
-        id = JOptionPane.showInputDialog(viewProveedores, "Dijite el id del proveedor a editar:");
-        if (id.length()>0){
-            mostrarPanelMedio();
+        String sql = "insert into proveedores("+Campos+") values ("+Datos+");";  
+        String elmVac = devuelveElementosVacios(elementosClasificacion);
+        if(elmVac.length()>1){
+            JOptionPane.showMessageDialog(viewProveedores, "Falta llenar campos: "+elmVac);
         }else{
-            id = JOptionPane.showInputDialog(viewProveedores, "Error: Vuelva a dijitar el id del proveedor a editar:");
+            conexionOswa.executeUpdate(sql);
+            viewProveedores.vaciaTabla();
+            setTablaValoresOriginales();
+            limpiarCampos();
+            JOptionPane.showMessageDialog(viewProveedores, "Datos almacenados correctamente");
         }
-               
     }
     private void eliminar() throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException{
-        id = viewProveedores.jTextField_id.getText();
-        llenadoCampos.campoVacioMensaje(id);
-        String sql = "delete from proveedores where id_proveedor = "+id+";";
-        conexionOswa.executeUpdate(sql);
- 
-        viewProveedores.revalidate();
-        limpiarCampos();
+        int id = toString.stringToInt(viewProveedores.jTextField_id.getText());
+        String sql = "select id_proveedor from proveedores where id_proveedor = "+id+";";
+        ResultSet rs = conexionOswa.getExecuteQuery(sql);
+        if(rs.first()){
+            sql = "delete from proveedores where id_proveedor = "+id+";";
+            conexionOswa.executeUpdate(sql);
+            limpiarCampos();
+            viewProveedores.vaciaTabla();
+            setTablaValoresOriginales();
+            JOptionPane.showMessageDialog(viewProveedores, "eliminacion correcta");
+        }else{
+            JOptionPane.showMessageDialog(viewProveedores, "id no encontrado");
+        }
+    }
+    private void editar() throws ClassNotFoundException, InstantiationException, IllegalAccessException, SQLException{
+        id = ""+toString.stringToInt( JOptionPane.showInputDialog(viewProveedores, "Dijite el id del proveedor a editar:"));
+        String sql = "select * from proveedores where id_proveedor = "+id+";";
+        ResultSet rs = conexionOswa.getExecuteQuery(sql);
+        if(rs.first()){
+            mostrarPanelMedio();
+            mostrarTodo();
+            viewProveedores.jTextField_id.setText(""+rs.getObject(1));
+            viewProveedores.jTextField_nombre.setText(""+rs.getObject(2));
+            viewProveedores.jTextField_rfc.setText(""+rs.getObject(3));
+            viewProveedores.jTextField_calle.setText(""+rs.getObject(4));
+            viewProveedores.jTextField_numero.setText(""+rs.getObject(5));
+            viewProveedores.jTextField_colonia.setText(""+rs.getObject(6));
+            viewProveedores.jTextField_ciudad.setText(""+rs.getObject(7));
+            viewProveedores.jTextField_estado.setText(""+rs.getObject(8));
+            viewProveedores.jTextField_nombrecontacto.setText(""+rs.getObject(9));
+            viewProveedores.jTextField_telefono.setText(""+rs.getObject(10));
+            viewProveedores.jTextField_email.setText(""+rs.getObject(11));
+        }else{
+            JOptionPane.showMessageDialog(viewProveedores, "id no encontrado");
+        }
     }
     private void ejecutarEdicion(String id) throws ClassNotFoundException, InstantiationException, SQLException, IllegalAccessException{
-        viewProveedores.jTextField_id.setText(id);
+        String[][] elementosClasificacion = new  String[2][10];
+        String sql="";
         String nombre = viewProveedores.jTextField_nombre.getText();
+        elementosClasificacion[0][0]=nombre;elementosClasificacion[1][0]="nombre";
         String rfc = viewProveedores.jTextField_rfc.getText();
+        elementosClasificacion[0][1]=rfc;elementosClasificacion[1][1]="rfc";
         String calle = viewProveedores.jTextField_calle.getText();
-        String no = viewProveedores.jTextField_numero.getText();
+        elementosClasificacion[0][2]=calle;elementosClasificacion[1][2]="calle";
+        int no = toString.stringToInt(viewProveedores.jTextField_numero.getText()); 
+        elementosClasificacion[0][3]=""+no;elementosClasificacion[1][3]="no";
         String colonia = viewProveedores.jTextField_colonia.getText();
+        elementosClasificacion[0][4]=colonia;elementosClasificacion[1][4]="colonia";
         String ciudad = viewProveedores.jTextField_ciudad.getText();
+        elementosClasificacion[0][5]=ciudad;elementosClasificacion[1][5]="ciudad";
         String estado = viewProveedores.jTextField_estado.getText();
+        elementosClasificacion[0][6]=estado;elementosClasificacion[1][6]="estado";
         String nombre_contacto = viewProveedores.jTextField_nombrecontacto.getText();
-        String telefono = viewProveedores.jTextField_telefono.getText();
+        elementosClasificacion[0][7]=nombre_contacto;elementosClasificacion[1][7]="nombre de contacto";
+        int telefono = toString.stringToInt(viewProveedores.jTextField_telefono.getText());
+        elementosClasificacion[0][8]=""+telefono;elementosClasificacion[1][8]="telefono";
         String email = viewProveedores.jTextField_email.getText();
-        String sql;
-        sql = "update proveedores set nombre = '"+nombre+"' where id_proveedor = "+id+";";
-        conexionOswa.executeUpdate(sql);
-        sql = "update proveedores set rfc = '"+rfc+"' where id_proveedor = "+id+";";
-        conexionOswa.executeUpdate(sql);
-        sql = "update proveedores set calle = '"+calle+"' where id_proveedor = "+id+";";
-        conexionOswa.executeUpdate(sql);
-        sql = "update proveedores set no = '"+no+"' where id_proveedor = "+id+";";
-        conexionOswa.executeUpdate(sql);
-        sql = "update proveedores set colonia = '"+colonia+"' where id_proveedor = "+id+";";
-        conexionOswa.executeUpdate(sql);
-        sql = "update proveedores set ciudad = '"+ciudad+"' where id_proveedor = "+id+";";
-        conexionOswa.executeUpdate(sql);
-        sql = "update proveedores set estado = '"+estado+"' where id_proveedor = "+id+";";
-        conexionOswa.executeUpdate(sql);
-        sql = "update proveedores set nombre_contacto = '"+nombre_contacto+"' where id_proveedor = "+id+";";
-        conexionOswa.executeUpdate(sql);
-        sql = "update proveedores set telefono = '"+telefono+"' where id_proveedor = "+id+";";
-        conexionOswa.executeUpdate(sql);
-        sql = "update proveedores set email = '"+email+"' where id_proveedor = "+id+";";
-        conexionOswa.executeUpdate(sql);
-        limpiarCampos();
+        elementosClasificacion[0][9]=email;elementosClasificacion[1][9]="email";
+        String elmVac = devuelveElementosVacios(elementosClasificacion);
+        if(elmVac.length()>1){
+            JOptionPane.showMessageDialog(viewProveedores, "Falta llenar campos: "+elmVac);
+        }else{
+            sql = "update proveedores set nombre = '"+nombre+"' where id_proveedor = "+id+";";
+            conexionOswa.executeUpdate(sql);
+            sql = "update proveedores set rfc = '"+rfc+"' where id_proveedor = "+id+";";
+            conexionOswa.executeUpdate(sql);
+            sql = "update proveedores set calle = '"+calle+"' where id_proveedor = "+id+";";
+            conexionOswa.executeUpdate(sql);
+            sql = "update proveedores set no = '"+no+"' where id_proveedor = "+id+";";
+            conexionOswa.executeUpdate(sql);
+            sql = "update proveedores set colonia = '"+colonia+"' where id_proveedor = "+id+";";
+            conexionOswa.executeUpdate(sql);
+            sql = "update proveedores set ciudad = '"+ciudad+"' where id_proveedor = "+id+";";
+            conexionOswa.executeUpdate(sql);
+            sql = "update proveedores set estado = '"+estado+"' where id_proveedor = "+id+";";
+            conexionOswa.executeUpdate(sql);
+            sql = "update proveedores set nombre_contacto = '"+nombre_contacto+"' where id_proveedor = "+id+";";
+            conexionOswa.executeUpdate(sql);
+            sql = "update proveedores set telefono = '"+telefono+"' where id_proveedor = "+id+";";
+            conexionOswa.executeUpdate(sql);
+            sql = "update proveedores set email = '"+email+"' where id_proveedor = "+id+";";
+            conexionOswa.executeUpdate(sql);
+            limpiarCampos();
+            viewProveedores.vaciaTabla();
+            setTablaValoresOriginales();
+            JOptionPane.showMessageDialog(viewProveedores, "actualizacion correcta");
     }
+}
     private void buscar() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException{
         String nombre = viewProveedores.jTextField_nombre.getText();
-        String sql = "select id_proveedor,nombre from proveedores where nombre = '"+nombre+"';";
-        Connection con = null;
-        con=DriverManager.getConnection("jdbc:mysql://localhost:3306/acme","root","");
-        System.out.println(sql);
-        PreparedStatement us = con.prepareStatement(sql);
-        ResultSet rs = us.executeQuery();
-        int i=1;
-        String Resultado = "";
+        String sql = "select * from proveedores where nombre = '"+nombre+"';";
+        ResultSet rs = conexionOswa.getExecuteQuery(sql);
         if(rs.first()){
-            while(rs.next()){
-                Resultado += rs.getObject(i)+", ";
-                i++;
-            }
-            JOptionPane.showMessageDialog(viewProveedores, "Valor '"+nombre+"' encontrado en id: "+Resultado);
+            modelProveedores.setSql(sql);
+            modelProveedores.setNumeroColumnas(11);
+            viewProveedores.vaciaTabla();
+            System.out.println("valores: "+modelProveedores.getSql());
+            setFilas();
         }else{
             JOptionPane.showMessageDialog(viewProveedores, "No encontrado");
         }
     }
-    private void conexion() throws SQLException{
-        JOptionPane.showMessageDialog(viewProveedores, "Conexion correcta");
-        
+    private void tabla() throws SQLException{
+        setTablaValoresOriginales();
     }
     private void mostrarTodo(){
         viewProveedores.jTextField_id.setVisible(true);
@@ -358,14 +413,46 @@ public final class ControllerProveedores {
         viewProveedores.jTextField_id.setVisible(false);
     }
     private void sandwichActionPerformed(){
-        viewMain.setVisible(true);
-        viewMain.revalidate();
-        viewMain.repaint();
+        
     }
     private void mostrarPanelMedio(){
         viewProveedores.jPanel_Medio.setVisible(true);
     }
     private void ocultarPanelMedio(){
         viewProveedores.jPanel_Medio.setVisible(false);
+    }
+    private void setTablaValoresOriginales() throws SQLException{
+        modelProveedores.setSql("select id_proveedor,nombre,rfc,calle,no,colonia,ciudad,estado,nombre_contacto,telefono,email from proveedores;");
+        modelProveedores.setNumeroColumnas(11);
+        setFilas();
+    }
+    public void setFilas() throws SQLException{
+        try{
+            String sql = modelProveedores.getSql();
+            int numeroColumnas = modelProveedores.getNumeroColumnas();
+            try (ResultSet res = conexionOswa.getExecuteQuery(sql)) {
+                Object datos[] = new Object[numeroColumnas];//Numero de columnas de la consulta
+                
+                while (res.next()){
+                    for(int i = 0;i<datos.length;i++){
+                        datos[i] = res.getObject(i+1);
+                    }
+                    viewProveedores.getModeloTabla().addRow(datos);
+                }
+            } //Numero de columnas de la consulta
+        }catch(SQLException ex){
+            Logger.getLogger(ViewProveedores.class.getName()).log(Level.SEVERE,null,ex);
+        }
+    }
+    private String devuelveElementosVacios(String[][] elementosClasificacion){
+        int vueltas = 0;
+        String elementosVacios = "";
+        while(vueltas<elementosClasificacion[0].length){
+            if(elementosClasificacion[0][vueltas].length()==0){
+                elementosVacios+=elementosClasificacion[1][vueltas]+", ";
+            }
+            vueltas+=1;
+        }
+        return elementosVacios;
     }
 }

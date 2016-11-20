@@ -5,6 +5,8 @@
  */
 package views;
 
+import javax.swing.JOptionPane;
+
 
 /**
  *
@@ -171,11 +173,11 @@ public class ViewMain extends javax.swing.JFrame {
                                     .addComponent(jLabel_Operaciones_Compras)
                                     .addComponent(jLabel_Operaciones_Ventas)))
                             .addGroup(jPanel_MenuLayout.createSequentialGroup()
-                                .addGap(45, 45, 45)
-                                .addComponent(jLabel_Ayuda_AcercaDe))
-                            .addGroup(jPanel_MenuLayout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(jLabel_Operaciones)))
+                                .addComponent(jLabel_Operaciones))
+                            .addGroup(jPanel_MenuLayout.createSequentialGroup()
+                                .addGap(45, 45, 45)
+                                .addComponent(jLabel_Ayuda_AcercaDe)))
                         .addGap(0, 13, Short.MAX_VALUE)))
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel_MenuLayout.createSequentialGroup()
@@ -246,7 +248,7 @@ public class ViewMain extends javax.swing.JFrame {
                 .addComponent(jLabel_Ayuda)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel_Ayuda_AcercaDe)
-                .addContainerGap(106, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
@@ -273,7 +275,7 @@ public class ViewMain extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel_Aceptar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel_Aceptar, javax.swing.GroupLayout.DEFAULT_SIZE, 21, Short.MAX_VALUE)
                 .addGap(16, 16, 16))
         );
 
@@ -307,7 +309,7 @@ public class ViewMain extends javax.swing.JFrame {
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPasswordField_Contrasena, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(13, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -333,7 +335,7 @@ public class ViewMain extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addGap(74, 74, 74)
-                .addComponent(jLabel_icon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel_icon, javax.swing.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel_Loggin, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(8, 8, 8)
@@ -388,20 +390,18 @@ public class ViewMain extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ViewMain.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ViewMain.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ViewMain.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ViewMain.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            JOptionPane.showInputDialog("Error: "+ex);
         }
+        //</editor-fold>
+        //</editor-fold>
+        
         //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new ViewMain().setVisible(true);
             }
@@ -430,7 +430,7 @@ public class ViewMain extends javax.swing.JFrame {
     public javax.swing.JLabel jLabel_Sesiones;
     public javax.swing.JLabel jLabel_Sesiones_IniciarSesion;
     public javax.swing.JLabel jLabel_Sesiones_Usuarios;
-    private javax.swing.JLabel jLabel_icon;
+    public javax.swing.JLabel jLabel_icon;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     public javax.swing.JPanel jPanel_Loggin;
